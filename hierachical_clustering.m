@@ -11,7 +11,7 @@ dendrogram(merges)
 
 % Determine number of clusters
 numclusters = 2;
-cluster_id = cluster(merges, 'maxclust', k);
+cluster_id = cluster(merges, 'maxclust', numclusters);
 
 
 %% Load data files to visualize clusters
