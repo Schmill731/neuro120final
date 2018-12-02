@@ -13,6 +13,8 @@ uniqueROIs = find(ROIinBoth);
 subROIloc = randi(size(uniqueROIs, 1), 1, round(size(uniqueROIs, 1)*0.0005));
 subROI1 = unique(Fish1.roi2map(uniqueROIs(subROIloc)));
 subROI2 = unique(Fish2.roi2map(uniqueROIs(subROIloc)));
+subROIlocActivity1 = Fish1.CalciumActivity(Fish1.roi2map(uniqueROIs(subROIloc)), :);
+subROIlocActivity2 = Fish2.CalciumActivity(Fish2.roi2map(uniqueROIs(subROIloc)), :);
 subROIActivity1 = Fish1.CalciumActivity(subROI1, :);
 subROIActivity2 = Fish2.CalciumActivity(subROI2, :);
 corr1 = corr(subROIActivity1');
@@ -46,19 +48,34 @@ numclusters = 2;
 sub_id = cluster(merges, 'maxclust', numclusters);
 
 %% Cluster non-representative points
-cluster_id1 = zeros(1, size(subROI1, 1));
-cluster_id2 = zeros(1, size(subROI2, 1));
 
-for i = 1:size(uniqueROIs, 1)
+
+%% Cluster non-representative points
+cluster_id = zeros(1, size(Fish1.CalciumActivity, 1));
+for i = 1:size(Fish1.CalciumActivity, 1)
     % Find nearest point
-    iCorr = 1 - (corr(Fish1.CalciumActivity(Fish1.roi2map(uniqueROIs(i)), :)',subROIActivity1') + ...
-        corr(Fish2.CalciumActivity(Fish2.roi2map(uniqueROIs(i)), :)', subROIActivity2'))./2; 
+    iCorr = 1 - (corr(Fish1.CalciumActivity(i, :)', subROIlocActivity1')
+%         corr(Fish2.CalciumActivity(Fish2.roi2map(uniqueROIs(i)), :)', subROIlocActivity2'))./2; 
     [~,I] = min(iCorr);
     cluster_id(i) = sub_id(I);
-    if mod(i, 500) == 0
+    if mod(i, 1000) == 0
         disp(i);
     end
 end
+unique_id = cluster_id(Fish1.roi2map(uniqueROIs));
+
+%% OLD CODE
+% cluster_id = zeros(1, size(Fish1.CalciumActivity, 1));
+% for i = 1:size(Fish1.CalciumActivity, 1)
+%     % Find nearest point
+%     iCorr = 1 - (corr(Fish1.CalciumActivity(Fish1.roi2map(uniqueROIs(i)), :)',subROIlocActivity1')
+% %         corr(Fish2.CalciumActivity(Fish2.roi2map(uniqueROIs(i)), :)', subROIlocActivity2'))./2; 
+%     [~,I] = min(iCorr);
+%     cluster_id(i) = sub_id(I);
+%     if mod(i, 1000) == 0
+%         disp(i);
+%     end
+% end
     
 
 %% Visualize clusters
