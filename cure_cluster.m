@@ -6,7 +6,7 @@
 
 run('generate_time_matrix.m')
 
-distances = time_distance(:, 3)';
+distances = mean(time_distance2, 2)';
 sub_dist_loc = randi(size(distances, 2), 1, round(size(distances, 2)*0.05));
 sub_dist = distances(:, sub_dist_loc);
 sub_dist_matrix = dist(sub_dist);
@@ -20,7 +20,7 @@ merges = linkage(sub_dist_matrix, 'ward');
 dendrogram(merges)
 
 % Determine number of clusters
-numclusters = 3;
+numclusters = 4;
 sub_id = cluster(merges, 'maxclust', numclusters);
 
 %% Cluster non-representative points
@@ -31,14 +31,20 @@ for i = 1:size(Fish1.CalciumActivity, 1)
     diff_dist = diff'*diff;
     [~,I] = min(diag(diff_dist));
     cluster_id(i) = sub_id(I);
-    if mod(i, 100) == 0
+    if mod(i, 500) == 0
         disp(i);
     end
 end
     
 
 %% Visualize clusters
-display = visualize_brain('Fish1', cluster_id);
+test = cluster_id;
+test(test == 3) = 0;
+display = visualize_brain(cluster_id-1, Fish1.roi2map);
 implay(display)
 
-
+%% Compute average max response time delay
+centroids = zeros(1, numclusters);
+for i = 1:numclusters
+    centroids(i) = mean(distances(cluster_id == i));
+end
