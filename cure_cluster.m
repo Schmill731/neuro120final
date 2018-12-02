@@ -6,7 +6,7 @@
 
 run('generate_time_matrix.m')
 
-distances = mean(time_distance2, 2)';
+distances = mean(time_distance1, 2)';
 sub_dist_loc = randi(size(distances, 2), 1, round(size(distances, 2)*0.05));
 sub_dist = distances(:, sub_dist_loc);
 sub_dist_matrix = dist(sub_dist);

@@ -8,7 +8,7 @@ activity1 = Fish1.CalciumActivity;
 activity2 = Fish2.CalciumActivity;
 stimulus1 = Fish1.Stimulus;
 stimulus2 = Fish2.Stimulus;
-staTime = 40;
+staTime = 2;
 
 %% Generate background activity (activity when no stimulus occurs)
 % backgroundTimes = stimulus1 <= 1;
@@ -81,7 +81,7 @@ end
 time_distance1 = zeros([roiNum1(1) 4]);
 for i = 1:roiNum1(1)
    for j = 1:4
-      [val,index]=max(staCache1(i, 1:40, j)); 
+      [val,index]=max(staCache1(i, 1:staTime, j)); 
       time_distance1(i,j) = index;
    end
 end
@@ -92,7 +92,7 @@ end
 time_distance2 = zeros([roiNum2(1) 4]);
 for i = 1:roiNum2(1)
    for j = 1:4
-      [val,index]=max(staCache2(i, 1:40, j)); 
+      [val,index]=max(staCache2(i, 1:staTime, j)); 
       time_distance2(i,j) = index;
    end
 end
