@@ -10,7 +10,7 @@ function display = visualize_brain(values, roi2map)
 
 
     %% Build colored brain (just red)
-    visualization = zeros(size(refbrain));
+    visualization = (1 - refbrain);
     for i = 1:size(refbrain, 1)
         for j = 1:size(refbrain, 2)
             for k = 1:size(refbrain, 4)
@@ -21,6 +21,12 @@ function display = visualize_brain(values, roi2map)
                         visualization(i, j, 2, k) = 1;
                     elseif values(roi2map(i, j, k)) == 3
                         visualization(i, j, 3, k) = 1;
+                    elseif values(roi2map(i, j, k)) == 4
+                        visualization(i, j, 1:2, k) = 1;
+                    elseif values(roi2map(i, j, k)) == 5
+                        visualization(i, j, 2:3, k) = 1;
+                    elseif values(roi2map(i, j, k)) == 6
+                        visualization(i, j, [1 2], k) = 1;
                     end
                 end
             end
@@ -28,5 +34,5 @@ function display = visualize_brain(values, roi2map)
     end
 
     %% Display colored brain on top of reference brain
-    display = (1 - refbrain) + visualization;
+    display = visualization;
 end
