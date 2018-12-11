@@ -1,42 +1,57 @@
 %% Hierarchical Clustering using CURE
 
+% Set parameters
+subset_percent = 0.1;
+correlation_cutoff = 0.75;
+
 %% Load data
+disp('Loading data...');
 load('Data4Class/Fish1.mat');
 load('Data4Class/Fish2.mat');
 
 %% Subsample data
-% use randi
-% output sub_dist
-
+disp('Subsampling data...');
+subActivityloc1 = randi(size(Fish1.CalciumActivity, 1), ...
+    round(size(Fish1.CalciumActivity, 1)*subset_percent), 1);
+subActivity1 = Fish1.CalciumActivity(subActivityloc1, :);
+corr1 = 1 - corr(subActivity2');
 subActivityloc2 = randi(size(Fish2.CalciumActivity, 1), ...
-    round(size(Fish2.CalciumActivity, 1)*0.1), 1);
+    round(size(Fish2.CalciumActivity, 1)*subset_percent), 1);
 subActivity2 = Fish2.CalciumActivity(subActivityloc2, :);
-corr2 = 1- corr(subActivity2');
-
-% sub_dist = dist(test(subActivityloc1));
-
-% run('generate_time_matrix.m')
-
-% distances = mean(time_distance1, 2)';
-% sub_dist_loc = randi(size(distances, 2), 1, round(size(distances, 2)*0.05));
-% sub_dist = distances(:, sub_dist_loc);
-% sub_dist_matrix = dist(sub_dist);
+corr2 = 1 - corr(subActivity2');
 
 %% Perform Hierarchical Clustering
-
+disp('Clustering subsample...');
 % Perform clustering
+merges1 = linkage(corr1, 'complete', 'correlation');
 merges2 = linkage(corr2, 'complete', 'correlation');
 
 % Plot dendrogram to visualize number of clusters
 figure();
-dendrogram(merges2)
+dendrogram(merges1);
+figure();
+dendrogram(merges2);
 
-% Determine number of clusters
-numclusters = 5;
-sub_id2 = cluster(merges2, 'maxclust', numclusters);
+% Cluster subsample
+sub_id1 = cluster(merges1,'cutoff', correlation_cutoff, 'criterion', 'distance');
+max(sub_id1)
+sub_id2 = cluster(merges2,'cutoff', correlation_cutoff, 'criterion', 'distance');
 max(sub_id2)
 
-%% Cluster non-representative points
+%% Cluster non-representative points for Fish 1
+disp('Clustering all of Fish 1...');
+cluster_id1 = zeros(1, size(Fish1.CalciumActivity, 1));
+parfor_progress(size(Fish1.CalciumActivity, 1));
+parfor i = 1:size(Fish1.CalciumActivity, 1)
+    % Find nearest point
+    iCorr = 1 - corr(Fish1.CalciumActivity(i, :)', subActivity1');
+    [~,I] = min(iCorr);
+    cluster_id1(i) = sub_id1(I);
+    parfor_progress;
+end
+
+%% Cluster non-representative points for Fish 2
+disp('Clustering all of Fish 2...');
 cluster_id2 = zeros(1, size(Fish2.CalciumActivity, 1));
 parfor_progress(size(Fish2.CalciumActivity, 1));
 parfor i = 1:size(Fish2.CalciumActivity, 1)
@@ -45,33 +60,21 @@ parfor i = 1:size(Fish2.CalciumActivity, 1)
     [~,I] = min(iCorr);
     cluster_id2(i) = sub_id2(I);
     parfor_progress;
-%     if mod(i, 500) == 0
-%         disp(i);
-%     end
 end
 
-% %% Cluster non-representative points
-% cluster_id = zeros(1, size(Fish1.CalciumActivity, 1));
-% for i = 1:size(Fish1.CalciumActivity, 1)
-%     % Find nearest point
-%     diff = test(i) - sub_dist;
-%     distance = diff'*diff;
-%     [~,I] = min(diag(distance));
-%     cluster_id(i) = sub_id(I);
-%     if mod(i, 500) == 0
-%         disp(i);
-%     end
-% end
+%% Save Cluster Data
+save(sprintf('clusterData_%i-%i-%i_%i%i.mat', cur_time(1), ...
+    cur_time(2), cur_time(3), cur_time(4), cur_time(5));
 
 %% Visualize clusters
-test = cluster_id;
-test(test == 4) = 0;
-display = visualize_brain(test, Fish1.roi2map);
-implay(display)
-v = VideoWriter('5cluster5showncorrmethodfish1test');
-open(v);
-writeVideo(v, display);
-close(v);
+% test = cluster_id;
+% test(test == 4) = 0;
+% display = visualize_brain(test, Fish1.roi2map);
+% implay(display)
+% v = VideoWriter('5cluster5showncorrmethodfish1test');
+% open(v);
+% writeVideo(v, display);
+% close(v);
 
 %% Compute average
 % centroids = zeros(1, numclusters);
