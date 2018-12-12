@@ -14,7 +14,7 @@ disp('Subsampling data...');
 subActivityloc1 = randi(size(Fish1.CalciumActivity, 1), ...
     round(size(Fish1.CalciumActivity, 1)*subset_percent), 1);
 subActivity1 = Fish1.CalciumActivity(subActivityloc1, :);
-corr1 = 1 - corr(subActivity2');
+corr1 = 1 - corr(subActivity1');
 subActivityloc2 = randi(size(Fish2.CalciumActivity, 1), ...
     round(size(Fish2.CalciumActivity, 1)*subset_percent), 1);
 subActivity2 = Fish2.CalciumActivity(subActivityloc2, :);
@@ -63,18 +63,30 @@ parfor i = 1:size(Fish2.CalciumActivity, 1)
 end
 
 %% Save Cluster Data
+disp('Saving data...');
+cur_time = clock;
 save(sprintf('clusterData_%i-%i-%i_%i%i.mat', cur_time(1), ...
-    cur_time(2), cur_time(3), cur_time(4), cur_time(5));
-
+    cur_time(2), cur_time(3), cur_time(4), cur_time(5)));
 %% Visualize clusters
-% test = cluster_id;
-% test(test == 4) = 0;
-% display = visualize_brain(test, Fish1.roi2map);
-% implay(display)
-% v = VideoWriter('5cluster5showncorrmethodfish1test');
-% open(v);
-% writeVideo(v, display);
-% close(v);
+disp('Displaying fish1...');
+for i = 1:round(max(sub_id1)/6)
+    test = cluster_id1 - 6*(i - 1);
+    display = visualize_brain(test, Fish1.roi2map);
+    v = VideoWriter(sprintf('fish1cluster%i-%i', (6*(i-1)+1), (6*(i-1)+6)));
+    open(v);
+    writeVideo(v, display);
+    close(v);
+end
+disp('Displaying Fish2...');
+for i = 1:round(max(sub_id2)/6)
+    test = cluster_id2 - 6*(i - 1);
+    display = visualize_brain(test, Fish2.roi2map);
+    v = VideoWriter(sprintf('fish2cluster%i-%i', (6*(i-1)+1), (6*(i-1)+6)));
+    open(v);
+    writeVideo(v, display);
+    close(v);
+end
+disp('Done!');
 
 %% Compute average
 % centroids = zeros(1, numclusters);
