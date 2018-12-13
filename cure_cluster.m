@@ -62,12 +62,47 @@ parfor i = 1:size(Fish2.CalciumActivity, 1)
     parfor_progress;
 end
 
+%% Align clusters between fish
+clustermap1 = Fish1.roi2map;
+clustermap1(clustermap1~=0) = cluster_id1(clustermap1(clustermap1~=0));
+clustermap2 = Fish2.roi2map;
+clustermap2(clustermap2~=0) = cluster_id2(clustermap2(clustermap2~=0));
+overlappingindices = and(clustermap1~=0, clustermap2~=0);
+updatedclustermap = clustermap1;
+maxclust = max([max(sub_id1) max(sub_id2)]);
+for i = 1:max(sub_id1)
+    disp(i)
+    idx = find(clustermap1(overlappingindices) == i, 1);
+    if not(isempty(idx))
+        updatedcluster = clustermap2(idx);
+    else
+        maxclust = maxclust + 1;
+        updatedcluster = maxclust;
+    end
+        updatedclustermap(clustermap1 == i) = updatedcluster;
+end
+updatedclustermap(clustermap2~=0) = clustermap2(clustermap2~=0);
+
 %% Save Cluster Data
 disp('Saving data...');
 cur_time = clock;
 save(sprintf('clusterData_%i-%i-%i_%i%i.mat', cur_time(1), ...
     cur_time(2), cur_time(3), cur_time(4), cur_time(5)));
-%% Visualize clusters
+
+%% Visualize clusters together
+all_indices = 1:prod(size(clustermap1));
+all_clusters = reshape(updatedclustermap, 1, prod(size(clustermap1)));
+clusterroi2map = reshape(all_indices, size(clustermap1));
+for i = 1:ceil(maxclust/6)
+    disp(i)
+    corrected = all_clusters - 6*(i - 1);
+    display = visualize_brain(corrected, clusterroi2map);
+    v = VideoWriter(sprintf('combinedfishcluster%i-%i', (6*(i-1)+1), (6*(i-1)+6)));
+    open(v);
+    writeVideo(v, display);
+    close(v);
+end
+%% Visualize clusters separately
 disp('Displaying fish1...');
 for i = 1:round(max(sub_id1)/6)
     test = cluster_id1 - 6*(i - 1);
