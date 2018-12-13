@@ -123,6 +123,29 @@ for i = 1:round(max(sub_id2)/6)
 end
 disp('Done!');
 
+%% Sum number of pixels in each cluster
+numPixels = zeros(1, maxclust);
+for i = 1:maxclust
+    numPixels(i) = sum(all_clusters==i, 'all');
+end
+totalPixels = sum(updatedclustermap~=0, 'all');
+percentPixels = numPixels/totalPixels;
+sortedPixels = sort(percentPixels, 'descend');
+top7 = find(ismember(percentPixels,sortedPixels(1:7)));
+top7_clusters = all_clusters;
+top7_clusters(~ismember(top7_clusters, top7)) = 0;
+for i = 1:size(top7, 2)
+    top7_clusters(top7_clusters == top7(i)) = i;
+end
+display = visualize_brain(top7_clusters, clusterroi2map);
+v = VideoWriter('top7clusters');
+open(v);
+writeVideo(v, display);
+close(v);
+    
+
+
+
 %% Compute average
 % centroids = zeros(1, numclusters);
 % for i = 1:numclusters

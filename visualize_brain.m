@@ -27,6 +27,8 @@ function display = visualize_brain(values, roi2map)
                         visualization(i, j, 2:3, k) = 1;
                     elseif values(roi2map(i, j, k)) == 6
                         visualization(i, j, [1 3], k) = 1;
+                    elseif values(roi2map(i, j, k)) == 7
+                        visualization(i, j, [2 3], k) = 1;
                     end
                 end
             end
