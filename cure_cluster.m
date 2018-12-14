@@ -63,6 +63,7 @@ parfor i = 1:size(Fish2.CalciumActivity, 1)
 end
 
 %% Align clusters between fish
+disp('Aligning clusters between fish...');
 clustermap1 = Fish1.roi2map;
 clustermap1(clustermap1~=0) = cluster_id1(clustermap1(clustermap1~=0));
 clustermap2 = Fish2.roi2map;
@@ -90,6 +91,7 @@ save(sprintf('clusterData_%i-%i-%i_%i%i.mat', cur_time(1), ...
     cur_time(2), cur_time(3), cur_time(4), cur_time(5)));
 
 %% Visualize clusters together
+disp('Visualizing combined data...');
 all_indices = 1:prod(size(clustermap1));
 all_clusters = reshape(updatedclustermap, 1, prod(size(clustermap1)));
 clusterroi2map = reshape(all_indices, size(clustermap1));
@@ -103,7 +105,7 @@ for i = 1:ceil(maxclust/6)
     close(v);
 end
 %% Visualize clusters separately
-disp('Displaying fish1...');
+disp('Visualizing fish1...');
 for i = 1:round(max(sub_id1)/6)
     test = cluster_id1 - 6*(i - 1);
     display = visualize_brain(test, Fish1.roi2map);
@@ -112,7 +114,7 @@ for i = 1:round(max(sub_id1)/6)
     writeVideo(v, display);
     close(v);
 end
-disp('Displaying Fish2...');
+disp('Visualizing Fish2...');
 for i = 1:round(max(sub_id2)/6)
     test = cluster_id2 - 6*(i - 1);
     display = visualize_brain(test, Fish2.roi2map);
@@ -121,9 +123,9 @@ for i = 1:round(max(sub_id2)/6)
     writeVideo(v, display);
     close(v);
 end
-disp('Done!');
 
 %% Sum number of pixels in each cluster and convert to percent
+disp('Quantifying/Investigating Clusters...');
 numPixels = zeros(1, maxclust);
 for i = 1:maxclust
     numPixels(i) = sum(all_clusters==i, 'all');
@@ -156,3 +158,5 @@ for i = 1:size(selected_layers, 2)
     text(-0.25,1.05,subfigure{i},'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', 24, 'FontWeight', 'bold')
     disp(i)
 end
+
+disp('Done!');
