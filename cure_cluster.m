@@ -123,7 +123,7 @@ for i = 1:round(max(sub_id2)/6)
 end
 disp('Done!');
 
-%% Sum number of pixels in each cluster
+%% Sum number of pixels in each cluster and convert to percent
 numPixels = zeros(1, maxclust);
 for i = 1:maxclust
     numPixels(i) = sum(all_clusters==i, 'all');
@@ -131,23 +131,28 @@ end
 totalPixels = sum(updatedclustermap~=0, 'all');
 percentPixels = numPixels/totalPixels;
 sortedPixels = sort(percentPixels, 'descend');
+
+% Determine all clusters above 5% and plot them
 top7 = find(ismember(percentPixels,sortedPixels(1:7)));
 top7_clusters = all_clusters;
 top7_clusters(~ismember(top7_clusters, top7)) = 0;
 for i = 1:size(top7, 2)
     top7_clusters(top7_clusters == top7(i)) = i;
 end
-display = visualize_brain(top7_clusters, clusterroi2map);
-v = VideoWriter('top7clusters');
+top_cluster_display = visualize_brain(top7_clusters, clusterroi2map);
+top_cluster_display(refbrain<0.001) = 1;
+v = VideoWriter('SupplementaryVideo1', 'MPEG-4');
 open(v);
-writeVideo(v, display);
+writeVideo(v, top_cluster_display);
 close(v);
-    
 
-
-
-%% Compute average
-% centroids = zeros(1, numclusters);
-% for i = 1:numclusters
-%     centroids(i) = mean(test(cluster_id == i));
-% end
+% Choose selected slices/frames to display in paper
+figure();
+selected_layers = [4, 19, 35, 66, 80, 88];
+subfigure = {'A', 'B', 'C', 'D', 'E', 'F'};
+for i = 1:size(selected_layers, 2)
+    subplot(2, 3, i);
+    imshow(test2(:, :, :, selected_layers(i)));
+    text(-0.25,1.05,subfigure{i},'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', 24, 'FontWeight', 'bold')
+    disp(i)
+end

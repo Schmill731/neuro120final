@@ -17,18 +17,25 @@ function display = visualize_brain(values, roi2map)
                 if roi2map(i, j, k) ~= 0
                     if values(roi2map(i, j, k)) == 1
                         visualization(i, j, 1, k) = 1;
+                        visualization(i, j, [2 3], k) = 0;
                     elseif values(roi2map(i, j, k)) == 2
                         visualization(i, j, 2, k) = 1;
+                        visualization(i, j, [1 3], k) = 0;
                     elseif values(roi2map(i, j, k)) == 3
                         visualization(i, j, 3, k) = 1;
+                        visualization(i, j, [1 2], k) = 0;
                     elseif values(roi2map(i, j, k)) == 4
                         visualization(i, j, 1:2, k) = 1;
+                        visualization(i, j, [3], k) = 0;
                     elseif values(roi2map(i, j, k)) == 5
                         visualization(i, j, 2:3, k) = 1;
+                        visualization(i, j, [1], k) = 0;
                     elseif values(roi2map(i, j, k)) == 6
                         visualization(i, j, [1 3], k) = 1;
+                        visualization(i, j, [2], k) = 0;
                     elseif values(roi2map(i, j, k)) == 7
-                        visualization(i, j, [2 3], k) = 1;
+                        visualization(i, j, [1 3], k) = 0.5;
+                        visualization(i, j, 2, k) = 0;
                     end
                 end
             end
@@ -36,5 +43,6 @@ function display = visualize_brain(values, roi2map)
     end
 
     %% Display colored brain on top of reference brain
+%     visualization = 1 - (visualization.*mean(refbrain, 3));
     display = visualization;
 end
